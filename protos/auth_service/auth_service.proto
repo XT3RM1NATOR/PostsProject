@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package auth_service;
+option go_package = "github.com/XT4RM1NATOR/PostsProject/protos/auth_service";
+
+service AuthService {
+  rpc Authenticate(AuthRequest) returns (AuthResponse);
+  rpc Register(User) returns (RegistrationResponse);
+  rpc getUser(UserRequest) returns (UserResponse);
+  rpc getAccessToken(AccessTokenRequest) returns (AccessTokenResponse);
+}
+
+message AccessTokenRequest {
+  string refresh_token = 1;
+}
+
+message AccessTokenResponse {
+  string access_token = 1;
+}
+
+message UserRequest {
+  string access_token = 1;
+}
+
+message UserResponse {
+  int32 id = 1;
+  string username = 2;
+  string role = 5;
+}
+
+message User {
+  int32 id = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+  string role = 5;
+}
+
+message AuthRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message RegistrationResponse {
+  string response = 1;
+}
