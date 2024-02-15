@@ -1,21 +1,21 @@
 package util
 
 import (
-	"context"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"os"
+	"strconv"
 	"time"
 )
 
 var (
-	accessTokenDuration  = time.Minute * 15
-	refreshTokenDuration = time.Hour * 24 * 7
+	AccessTokenDuration  = time.Hour * 24 * calculateTokenDuration("DAYS_ACCESS_TOKEN")
+	RefreshTokenDuration = time.Hour * 24 * calculateTokenDuration("DAYS_REFRESH_TOKEN")
 	jwtSecretKey         = os.Getenv("AUTH_SERVICE_JWT_KEY")
 )
 
 type Claims struct {
-	UserID int64  `json:"user_id"`
+	UserID int    `json:"user_id"`
 	Role   string `json:"role"`
 	jwt.StandardClaims
 }
@@ -32,13 +32,13 @@ func ComparePasswordAndHash(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
-func GenerateTokens(userID int64, role string) (string, string, error) {
-	accessToken, err := generateToken(userID, role, accessTokenDuration)
+func GenerateTokens(userID int, role string) (string, string, error) {
+	accessToken, err := GenerateToken(userID, role, AccessTokenDuration)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err := generateToken(userID, role, refreshTokenDuration)
+	refreshToken, err := GenerateToken(userID, role, RefreshTokenDuration)
 	if err != nil {
 		return "", "", err
 	}
@@ -46,7 +46,7 @@ func GenerateTokens(userID int64, role string) (string, string, error) {
 	return accessToken, refreshToken, nil
 }
 
-func generateToken(userID int64, role string, duration time.Duration) (string, error) {
+func GenerateToken(userID int, role string, duration time.Duration) (string, error) {
 	claims := Claims{
 		UserID: userID,
 		Role:   role,
@@ -80,10 +80,10 @@ func ParseToken(tokenString string) (*Claims, error) {
 	return nil, jwt.ErrSignatureInvalid
 }
 
-func ExtractTokenFromContext(ctx context.Context) (string, error) {
-	token, ok := ctx.Value("token").(string)
-	if !ok {
-		return "", jwt.ErrECDSAVerification
+func calculateTokenDuration(tokenType string) time.Duration {
+	daysToken, err := strconv.Atoi(os.Getenv(tokenType))
+	if err != nil {
+		return time.Duration(1)
 	}
-	return token, nil
+	return time.Duration(daysToken)
 }

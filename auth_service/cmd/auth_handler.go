@@ -2,18 +2,14 @@ package main
 
 import (
 	"context"
-	"log"
-	"net"
-
-	"github.com/XT4RM1NATOR/PostsProject/auth_service/repository"
 	"github.com/XT4RM1NATOR/PostsProject/auth_service/service"
 	"github.com/XT4RM1NATOR/PostsProject/auth_service/util"
 	"github.com/XT4RM1NATOR/PostsProject/protos/auth_service"
-	"google.golang.org/grpc"
 )
 
 type server struct {
 	authService *service.AuthService
+	auth_service.UnimplementedAuthServiceServer
 }
 
 func (s *server) Authenticate(ctx context.Context, req *auth_service.AuthRequest) (*auth_service.AuthResponse, error) {
@@ -58,27 +54,22 @@ func (s *server) GetUser(ctx context.Context, req *auth_service.UserRequest) (*a
 }
 
 func (s *server) GetAccessToken(ctx context.Context, req *auth_service.AccessTokenRequest) (*auth_service.AccessTokenResponse, error) {
-	accessToken, err := s.authService.RefreshAccessToken(ctx, req.RefreshToken)
+	sessionID, err := s.authService.Repo.GetSessionByRefreshToken(req.RefreshToken)
 	if err != nil {
 		return nil, err
 	}
+
+	user, err := s.authService.Repo.GetUserByID(sessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	accessToken, err := util.GenerateToken(user.ID, user.Role, util.AccessTokenDuration)
+	if err != nil {
+		return nil, err
+	}
+
 	return &auth_service.AccessTokenResponse{
 		AccessToken: accessToken,
 	}, nil
-}
-
-func main() {
-	lis, err := net.Listen("tcp", ":50051")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	db := // Initialize your database connection
-	repo := repository.NewAuthRepository(db)
-	authService := service.NewAuthService(repo)
-	s := grpc.NewServer()
-	auth_service.RegisterAuthServiceServer(s, &server{authService: authService})
-	log.Println("gRPC server started on port 50051")
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
 }

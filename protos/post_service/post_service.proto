@@ -1,0 +1,4 @@
+syntax = "proto3";
+
+package post_service;
+option go_package = "github.com/XT4RM1NATOR/PostsProject/post_service";
