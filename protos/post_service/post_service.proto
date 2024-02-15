@@ -2,3 +2,49 @@ syntax = "proto3";
 
 package post_service;
 option go_package = "github.com/XT4RM1NATOR/PostsProject/post_service";
+import "google/protobuf/empty.proto";
+
+service PostService {
+  rpc CreatePost(CreatePostRequest) returns (CreatedResponse);
+  rpc GetPostById(GetPostByIdRequest) returns (PostResponse);
+  rpc GetPosts(GetPostsRequest) returns (PostsResponse);
+  rpc UpdatePost(UpdatePostRequest) returns (google.protobuf.Empty);
+  rpc DeletePost(DeletePostRequest) returns (google.protobuf.Empty);
+}
+
+message CreatePostRequest {
+  string content = 1;
+  int32 author_id = 2;
+}
+
+message CreatedResponse {
+  int32 id = 1;
+}
+
+message GetPostByIdRequest {
+  int32 id = 1;
+}
+
+message PostResponse {
+  int32 id = 1;
+  string content = 2;
+  int32 author_id = 3;
+  string created_at = 4;
+}
+
+message GetPostsRequest {
+  int32 author_id = 1;
+}
+
+message PostsResponse {
+  repeated PostResponse posts = 1;
+}
+
+message UpdatePostRequest {
+  int32 id = 1;
+  string content = 2;
+}
+
+message DeletePostRequest {
+  int32 id = 1;
+}
