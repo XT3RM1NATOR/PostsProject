@@ -16,11 +16,23 @@ func init() {
 }
 
 func main() {
-	authConn, err := grpc.Dial("localhost:"+os.Getenv("4200"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	authConn, err := grpc.Dial("localhost:"+os.Getenv("AUTH_SERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatalf("Failed to connect to gRPC server: %v", err)
+		log.Fatalf("Failed to connect to gRPC auth_server: %v", err)
 	}
 	defer authConn.Close()
+
+	postConn, err := grpc.Dial("localhost:"+os.Getenv("POST_SERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Failed to connect to gRPC post_server: %v", err)
+	}
+	defer postConn.Close()
+
+	userConn, err := grpc.Dial("localhost:"+os.Getenv("USER_SERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Failed to connect to gRPC user_server: %v", err)
+	}
+	defer userConn.Close()
 
 	authClient := pb.NewAuthServiceClient(authConn)
 
