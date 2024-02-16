@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	pb "github.com/XT4RM1NATOR/PostsProject/protos/auth_service" // Import generated gRPC client code
+	pb "github.com/XT4RM1NATOR/PostsProject/protos/auth_service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

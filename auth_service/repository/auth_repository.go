@@ -19,6 +19,13 @@ type User struct {
 	Role     string `db:"role"`
 }
 
+type Session struct {
+	ID           int       `db:"id"`
+	UserID       int       `db:"user_id"`
+	refreshToken string    `db:"refresh_token"`
+	expiresAt    time.Time `db:"expires_at"`
+}
+
 func NewAuthRepository(db *sqlx.DB) *AuthRepository {
 	return &AuthRepository{db}
 }
@@ -30,18 +37,6 @@ func (r *AuthRepository) CreateSession(userID int, refreshToken string, expiresA
 		return err
 	}
 	return nil
-}
-
-func (r *AuthRepository) GetUserIDByRefreshToken(refreshToken string) (int, error) {
-	var userID int
-	err := r.db.Get(&userID, "SELECT user_id FROM sessions WHERE refresh_token = $1", refreshToken)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 0, errors.New("User not found")
-		}
-		return 0, err
-	}
-	return userID, nil
 }
 
 func (r *AuthRepository) DeleteSession(sessionID int) error {
@@ -60,20 +55,8 @@ func (r *AuthRepository) UpdateSession(sessionID int, expiresAt time.Time) error
 	return nil
 }
 
-func (r *AuthRepository) GetUserByUsername(username string) (*User, error) {
-	var user User
-	err := r.db.Get(&user, "SELECT * FROM users WHERE username = $1", username)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New("user not found")
-		}
-		return nil, err
-	}
-	return &user, nil
-}
-
 func (r *AuthRepository) GetSessionByRefreshToken(refreshToken string) (int, error) {
-	var sessionID int
+	var sessionID Session
 	err := r.db.Get(sessionID, "SELECT * FROM sessions WHERE refresh_token = $1", refreshToken)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -81,26 +64,17 @@ func (r *AuthRepository) GetSessionByRefreshToken(refreshToken string) (int, err
 		}
 		return -1, err
 	}
-	return sessionID, nil
+	return sessionID.ID, nil
 }
 
-func (r *AuthRepository) CreateUser(username, email, passwordHash string, role string) error {
-	_, err := r.db.Exec("INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4)",
-		username, email, passwordHash, role)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *AuthRepository) GetUserByID(userID int) (*User, error) {
-	var user User
-	err := r.db.Get(&user, "SELECT * FROM users WHERE id = $1", userID)
+func (r *AuthRepository) GetUserIdBySessionId(id int) (int, error) {
+	var session Session
+	err := r.db.Get(session, "SELECT * FROM sessions WHERE id = $1", id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New("user not found")
+			return -1, errors.New("session not found")
 		}
-		return nil, err
+		return -1, err
 	}
-	return &user, nil
+	return session.UserID, nil
 }

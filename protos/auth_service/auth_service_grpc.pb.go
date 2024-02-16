@@ -30,7 +30,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthServiceClient interface {
 	Authenticate(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
-	Register(ctx context.Context, in *User, opts ...grpc.CallOption) (*RegistrationResponse, error)
+	Register(ctx context.Context, in *User, opts ...grpc.CallOption) (*AuthResponse, error)
 	GetUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	GetAccessToken(ctx context.Context, in *AccessTokenRequest, opts ...grpc.CallOption) (*AccessTokenResponse, error)
 }
@@ -52,8 +52,8 @@ func (c *authServiceClient) Authenticate(ctx context.Context, in *AuthRequest, o
 	return out, nil
 }
 
-func (c *authServiceClient) Register(ctx context.Context, in *User, opts ...grpc.CallOption) (*RegistrationResponse, error) {
-	out := new(RegistrationResponse)
+func (c *authServiceClient) Register(ctx context.Context, in *User, opts ...grpc.CallOption) (*AuthResponse, error) {
+	out := new(AuthResponse)
 	err := c.cc.Invoke(ctx, AuthService_Register_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (c *authServiceClient) GetAccessToken(ctx context.Context, in *AccessTokenR
 // for forward compatibility
 type AuthServiceServer interface {
 	Authenticate(context.Context, *AuthRequest) (*AuthResponse, error)
-	Register(context.Context, *User) (*RegistrationResponse, error)
+	Register(context.Context, *User) (*AuthResponse, error)
 	GetUser(context.Context, *UserRequest) (*UserResponse, error)
 	GetAccessToken(context.Context, *AccessTokenRequest) (*AccessTokenResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
@@ -97,7 +97,7 @@ type UnimplementedAuthServiceServer struct {
 func (UnimplementedAuthServiceServer) Authenticate(context.Context, *AuthRequest) (*AuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authenticate not implemented")
 }
-func (UnimplementedAuthServiceServer) Register(context.Context, *User) (*RegistrationResponse, error) {
+func (UnimplementedAuthServiceServer) Register(context.Context, *User) (*AuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 func (UnimplementedAuthServiceServer) GetUser(context.Context, *UserRequest) (*UserResponse, error) {

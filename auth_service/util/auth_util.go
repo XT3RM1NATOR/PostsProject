@@ -1,8 +1,9 @@
 package util
 
 import (
+	"errors"
+	userPb "github.com/XT4RM1NATOR/PostsProject/protos/user_service"
 	"github.com/dgrijalva/jwt-go"
-	"golang.org/x/crypto/bcrypt"
 	"os"
 	"strconv"
 	"time"
@@ -15,21 +16,9 @@ var (
 )
 
 type Claims struct {
-	UserID int    `json:"user_id"`
-	Role   string `json:"role"`
+	UserID int
+	Role   string
 	jwt.StandardClaims
-}
-
-func GeneratePasswordHash(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashedPassword), nil
-}
-
-func ComparePasswordAndHash(password, hash string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
 func GenerateTokens(userID int, role string) (string, string, error) {
@@ -86,4 +75,17 @@ func calculateTokenDuration(tokenType string) time.Duration {
 		return time.Duration(1)
 	}
 	return time.Duration(daysToken)
+}
+
+func GetUserRole(role string) (userPb.Roles, error) {
+	var roleEnum userPb.Roles
+	switch role {
+	case "user":
+		roleEnum = userPb.Roles_user
+	case "admin":
+		roleEnum = userPb.Roles_admin
+	default:
+		return userPb.Roles_user, errors.New("invalid role")
+	}
+	return roleEnum, nil
 }

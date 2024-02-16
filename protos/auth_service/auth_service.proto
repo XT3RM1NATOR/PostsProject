@@ -5,7 +5,7 @@ option go_package = "github.com/XT4RM1NATOR/PostsProject/protos/auth_service";
 
 service AuthService {
   rpc Authenticate(AuthRequest) returns (AuthResponse);
-  rpc Register(User) returns (RegistrationResponse);
+  rpc Register(User) returns (AuthResponse);
   rpc getUser(UserRequest) returns (UserResponse);
   rpc getAccessToken(AccessTokenRequest) returns (AccessTokenResponse);
 }
@@ -24,16 +24,14 @@ message UserRequest {
 
 message UserResponse {
   int32 id = 1;
-  string username = 2;
-  string role = 5;
+  string role = 2;
 }
 
 message User {
   int32 id = 1;
   string username = 2;
-  string email = 3;
-  string password = 4;
-  string role = 5;
+  string password = 3;
+  string role = 4;
 }
 
 message AuthRequest {
@@ -44,8 +42,4 @@ message AuthRequest {
 message AuthResponse {
   string access_token = 1;
   string refresh_token = 2;
-}
-
-message RegistrationResponse {
-  string response = 1;
 }

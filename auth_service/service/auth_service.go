@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
-	"errors"
 	"github.com/XT4RM1NATOR/PostsProject/auth_service/repository"
 	"github.com/XT4RM1NATOR/PostsProject/auth_service/util"
+	userPb "github.com/XT4RM1NATOR/PostsProject/protos/user_service"
+	"github.com/XT4RM1NATOR/PostsProject/shared"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -18,18 +20,23 @@ func NewAuthService(repo *repository.AuthRepository) *AuthService {
 	return &AuthService{repo}
 }
 
-func (s *AuthService) Login(_ context.Context, username, password string) (string, string, error) {
-	user, err := s.Repo.GetUserByUsername(username)
+func (s *AuthService) Login(ctx context.Context, username, password string) (string, string, error) {
+
+	userClient, err := shared.GetUserServiceClient()
+	if err != nil {
+		log.Println("Err creating a connection with user client")
+	}
+	req := &userPb.GetByPropertyRequest{
+		Username: username,
+		Password: password,
+	}
+
+	user, err := userClient.GetByProperty(ctx, req)
 	if err != nil {
 		return "", "", err
 	}
 
-	err = util.ComparePasswordAndHash(password, user.Password)
-	if err != nil {
-		return "", "", errors.New("invalid credentials")
-	}
-
-	accessToken, refreshToken, err := util.GenerateTokens(user.ID, user.Role)
+	accessToken, refreshToken, err := util.GenerateTokens(int(user.Id), string(user.Role))
 	if err != nil {
 		return "", "", err
 	}
@@ -40,7 +47,7 @@ func (s *AuthService) Login(_ context.Context, username, password string) (strin
 	}
 
 	expiresAt := time.Now().Add(time.Hour * 24 * time.Duration(daysLeft))
-	err = s.Repo.CreateSession(user.ID, refreshToken, expiresAt)
+	err = s.Repo.CreateSession(int(user.Id), refreshToken, expiresAt)
 	if err != nil {
 		return "", "", err
 	}
@@ -62,16 +69,40 @@ func (s *AuthService) Logout(_ context.Context, refreshToken string) error {
 	return nil
 }
 
-func (s *AuthService) Register(_ context.Context, username, email, password string, role string) error {
-	hashedPassword, err := util.GeneratePasswordHash(password)
-	if err != nil {
-		return err
+func (s *AuthService) Register(ctx context.Context, username, password string, role string) (string, string, error) {
+
+	userRole, err := util.GetUserRole(role)
+	req := &userPb.CreateUserRequest{
+		Username: username,
+		Password: password,
+		Role:     userRole,
 	}
 
-	err = s.Repo.CreateUser(username, email, hashedPassword, role)
+	userClient, err := shared.GetUserServiceClient()
 	if err != nil {
-		return err
+		log.Println("Err creating a connection with user client")
 	}
 
-	return nil
+	user, err := userClient.CreateUser(ctx, req)
+	if err != nil {
+		return "", "", err
+	}
+
+	accessToken, refreshToken, err := util.GenerateTokens(int(user.Id), role)
+	if err != nil {
+		return "", "", err
+	}
+
+	daysLeft, err := strconv.Atoi(os.Getenv("DAYS_REFRESH_TOKEN"))
+	if err != nil {
+		return "", "", err
+	}
+
+	expiresAt := time.Now().Add(time.Hour * 24 * time.Duration(daysLeft))
+	err = s.Repo.CreateSession(int(user.Id), refreshToken, expiresAt)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }
