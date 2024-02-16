@@ -3,6 +3,8 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"github.com/XT4RM1NATOR/PostsProject/auth_service/util"
+	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -67,14 +69,18 @@ func (r *AuthRepository) GetSessionByRefreshToken(refreshToken string) (int, err
 	return sessionID.ID, nil
 }
 
-func (r *AuthRepository) GetUserIdBySessionId(id int) (int, error) {
+func (r *AuthRepository) GetUserIdBySessionId(id int) (int, string, error) {
 	var session Session
 	err := r.db.Get(session, "SELECT * FROM sessions WHERE id = $1", id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return -1, errors.New("session not found")
+			return -1, "", errors.New("session not found")
 		}
-		return -1, err
+		return -1, "", err
 	}
-	return session.UserID, nil
+	role, err := util.ParseToken(session.refreshToken)
+	if err != nil {
+		log.Print("Error parsing the token")
+	}
+	return session.UserID, role.Role, nil
 }

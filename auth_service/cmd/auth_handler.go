@@ -58,12 +58,12 @@ func (s *server) GetAccessToken(
 		return nil, err
 	}
 
-	user, err := s.authService.Repo.GetUserByID(sessionID)
+	user, role, err := s.authService.Repo.GetUserIdBySessionId(sessionID)
 	if err != nil {
 		return nil, err
 	}
 
-	accessToken, err := util.GenerateToken(user.ID, user.Role, util.AccessTokenDuration)
+	accessToken, err := util.GenerateToken(user, role, util.AccessTokenDuration)
 	if err != nil {
 		return nil, err
 	}
