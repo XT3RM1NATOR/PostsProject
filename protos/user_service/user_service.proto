@@ -10,7 +10,7 @@ service UserService {
   rpc GetUsers(google.protobuf.Empty) returns (UsersResponse);
   rpc UpdateUser(UpdateUserRequest) returns (google.protobuf.Empty);
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
-  rpc GetByProperty(GetByPropertyRequest) returns (GetByPropertyResponse);
+  rpc CheckUserByProperty(CheckUserByPropertyRequest) returns (CheckUserByPropertyResponse);
 }
 
 enum Roles {
@@ -54,12 +54,12 @@ message DeleteUserRequest {
   int32 id = 1;
 }
 
-message GetByPropertyRequest {
+message CheckUserByPropertyRequest {
   string username = 1;
-  string password_hash = 2;
+  string password = 2;
 }
 
-message GetByPropertyResponse {
+message CheckUserByPropertyResponse {
   int32 id = 1;
   Roles role = 2;
 }
