@@ -20,12 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UserService_CreateUser_FullMethodName    = "/user_service.UserService/CreateUser"
-	UserService_GetUserById_FullMethodName   = "/user_service.UserService/GetUserById"
-	UserService_GetUsers_FullMethodName      = "/user_service.UserService/GetUsers"
-	UserService_UpdateUser_FullMethodName    = "/user_service.UserService/UpdateUser"
-	UserService_DeleteUser_FullMethodName    = "/user_service.UserService/DeleteUser"
-	UserService_GetByProperty_FullMethodName = "/user_service.UserService/GetByProperty"
+	UserService_CreateUser_FullMethodName          = "/user_service.UserService/CreateUser"
+	UserService_GetUserById_FullMethodName         = "/user_service.UserService/GetUserById"
+	UserService_GetUsers_FullMethodName            = "/user_service.UserService/GetUsers"
+	UserService_UpdateUser_FullMethodName          = "/user_service.UserService/UpdateUser"
+	UserService_DeleteUser_FullMethodName          = "/user_service.UserService/DeleteUser"
+	UserService_CheckUserByProperty_FullMethodName = "/user_service.UserService/CheckUserByProperty"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -37,7 +37,7 @@ type UserServiceClient interface {
 	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UsersResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetByProperty(ctx context.Context, in *GetByPropertyRequest, opts ...grpc.CallOption) (*GetByPropertyResponse, error)
+	CheckUserByProperty(ctx context.Context, in *CheckUserByPropertyRequest, opts ...grpc.CallOption) (*CheckUserByPropertyResponse, error)
 }
 
 type userServiceClient struct {
@@ -93,9 +93,9 @@ func (c *userServiceClient) DeleteUser(ctx context.Context, in *DeleteUserReques
 	return out, nil
 }
 
-func (c *userServiceClient) GetByProperty(ctx context.Context, in *GetByPropertyRequest, opts ...grpc.CallOption) (*GetByPropertyResponse, error) {
-	out := new(GetByPropertyResponse)
-	err := c.cc.Invoke(ctx, UserService_GetByProperty_FullMethodName, in, out, opts...)
+func (c *userServiceClient) CheckUserByProperty(ctx context.Context, in *CheckUserByPropertyRequest, opts ...grpc.CallOption) (*CheckUserByPropertyResponse, error) {
+	out := new(CheckUserByPropertyResponse)
+	err := c.cc.Invoke(ctx, UserService_CheckUserByProperty_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ type UserServiceServer interface {
 	GetUsers(context.Context, *emptypb.Empty) (*UsersResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*emptypb.Empty, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error)
-	GetByProperty(context.Context, *GetByPropertyRequest) (*GetByPropertyResponse, error)
+	CheckUserByProperty(context.Context, *CheckUserByPropertyRequest) (*CheckUserByPropertyResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -134,8 +134,8 @@ func (UnimplementedUserServiceServer) UpdateUser(context.Context, *UpdateUserReq
 func (UnimplementedUserServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
-func (UnimplementedUserServiceServer) GetByProperty(context.Context, *GetByPropertyRequest) (*GetByPropertyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetByProperty not implemented")
+func (UnimplementedUserServiceServer) CheckUserByProperty(context.Context, *CheckUserByPropertyRequest) (*CheckUserByPropertyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckUserByProperty not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -240,20 +240,20 @@ func _UserService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_GetByProperty_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetByPropertyRequest)
+func _UserService_CheckUserByProperty_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckUserByPropertyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetByProperty(ctx, in)
+		return srv.(UserServiceServer).CheckUserByProperty(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_GetByProperty_FullMethodName,
+		FullMethod: UserService_CheckUserByProperty_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetByProperty(ctx, req.(*GetByPropertyRequest))
+		return srv.(UserServiceServer).CheckUserByProperty(ctx, req.(*CheckUserByPropertyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -286,8 +286,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_DeleteUser_Handler,
 		},
 		{
-			MethodName: "GetByProperty",
-			Handler:    _UserService_GetByProperty_Handler,
+			MethodName: "CheckUserByProperty",
+			Handler:    _UserService_CheckUserByProperty_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

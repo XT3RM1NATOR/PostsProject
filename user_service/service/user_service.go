@@ -20,7 +20,7 @@ func (s *UserService) CreateUser(req *user_service.CreateUserRequest) (user_serv
 		return user_service.CreateUserResponse{}, err
 	}
 
-	id, err := s.Repo.CreateUser(req.Username, hashedPassword, req.Role.String())
+	id, err := s.Repo.CreateUser(req.Username, hashedPassword, req.Role)
 	if err != nil {
 		return user_service.CreateUserResponse{}, err
 	}
@@ -46,8 +46,7 @@ func (s *UserService) GetUsers() (user_service.UsersResponse, error) {
 }
 
 func (s *UserService) UpdateUser(req *user_service.UpdateUserRequest) error {
-	role := req.Role.String()
-	err := s.Repo.UpdateUser(int(req.Id), &req.Username, &role)
+	err := s.Repo.UpdateUser(int(req.Id), &req.Username, &req.Role)
 	return err
 }
 

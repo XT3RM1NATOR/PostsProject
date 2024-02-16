@@ -13,7 +13,6 @@ func GetAuthServiceClient() (authPb.AuthServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer authConn.Close()
 
 	return authPb.NewAuthServiceClient(authConn), nil
 }
@@ -23,7 +22,6 @@ func GetUserServiceClient() (userPb.UserServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer userConn.Close()
 
 	return userPb.NewUserServiceClient(userConn), nil
 }

@@ -58,10 +58,10 @@ func (r *UserRepository) GetUsers() (user_service.UsersResponse, error) {
 }
 
 type GetUserByPropertyResponse struct {
-	Id           int32              `db:"id"`
-	Username     string             `db:"username"`
-	PasswordHash string             `db:"password"`
-	Role         user_service.Roles `db:"role"`
+	Id           int32  `db:"id"`
+	Username     string `db:"username"`
+	PasswordHash string `db:"password"`
+	Role         string `db:"role"`
 }
 
 func (r *UserRepository) GetUserByProperty(username string) (*GetUserByPropertyResponse, error) {

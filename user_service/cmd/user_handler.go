@@ -5,6 +5,7 @@ import (
 	"github.com/XT4RM1NATOR/PostsProject/protos/user_service"
 	"github.com/XT4RM1NATOR/PostsProject/user_service/service"
 	"github.com/golang/protobuf/ptypes/empty"
+	"log"
 )
 
 type Server struct {
@@ -13,6 +14,7 @@ type Server struct {
 }
 
 func (s *Server) CreateUser(ctx context.Context, req *user_service.CreateUserRequest) (*user_service.CreateUserResponse, error) {
+	log.Println("i am here")
 	res, err := s.userService.CreateUser(req)
 	if err != nil {
 		return nil, err

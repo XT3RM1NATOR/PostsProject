@@ -26,12 +26,12 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (str
 	if err != nil {
 		log.Println("Err creating a connection with user client")
 	}
-	req := &userPb.GetByPropertyRequest{
+	req := &userPb.CheckUserByPropertyRequest{
 		Username: username,
 		Password: password,
 	}
 
-	user, err := userClient.GetByProperty(ctx, req)
+	user, err := userClient.CheckUserByProperty(ctx, req)
 	if err != nil {
 		return "", "", err
 	}
@@ -71,11 +71,10 @@ func (s *AuthService) Logout(_ context.Context, refreshToken string) error {
 
 func (s *AuthService) Register(ctx context.Context, username, password string, role string) (string, string, error) {
 
-	userRole, err := util.GetUserRole(role)
 	req := &userPb.CreateUserRequest{
 		Username: username,
 		Password: password,
-		Role:     userRole,
+		Role:     role,
 	}
 
 	userClient, err := shared.GetUserServiceClient()
@@ -85,6 +84,7 @@ func (s *AuthService) Register(ctx context.Context, username, password string, r
 
 	user, err := userClient.CreateUser(ctx, req)
 	if err != nil {
+		log.Fatalf("i am user client err")
 		return "", "", err
 	}
 

@@ -48,7 +48,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to gRPC user_server: %v", err)
 	}
-	defer userConn.Close()
 
 	UserClient = userPb.NewUserServiceClient(userConn)
 

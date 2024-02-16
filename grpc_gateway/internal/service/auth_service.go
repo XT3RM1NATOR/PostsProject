@@ -4,6 +4,7 @@ import (
 	"context"
 	pb "github.com/XT4RM1NATOR/PostsProject/protos/auth_service"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
@@ -16,6 +17,7 @@ func AuthenticateHandler(client pb.AuthServiceClient) gin.HandlerFunc {
 		}
 
 		resp, err := client.Authenticate(context.Background(), &req)
+		log.Println(resp)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

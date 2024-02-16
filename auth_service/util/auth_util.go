@@ -1,8 +1,6 @@
 package util
 
 import (
-	"errors"
-	userPb "github.com/XT4RM1NATOR/PostsProject/protos/user_service"
 	"github.com/dgrijalva/jwt-go"
 	"os"
 	"strconv"
@@ -75,17 +73,4 @@ func calculateTokenDuration(tokenType string) time.Duration {
 		return time.Duration(1)
 	}
 	return time.Duration(daysToken)
-}
-
-func GetUserRole(role string) (userPb.Roles, error) {
-	var roleEnum userPb.Roles
-	switch role {
-	case "user":
-		roleEnum = userPb.Roles_user
-	case "admin":
-		roleEnum = userPb.Roles_admin
-	default:
-		return userPb.Roles_user, errors.New("invalid role")
-	}
-	return roleEnum, nil
 }
