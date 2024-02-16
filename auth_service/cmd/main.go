@@ -4,16 +4,20 @@ import (
 	"github.com/XT4RM1NATOR/PostsProject/auth_service/repository"
 	"github.com/XT4RM1NATOR/PostsProject/auth_service/service"
 	"github.com/XT4RM1NATOR/PostsProject/initializers"
-	"github.com/XT4RM1NATOR/PostsProject/protos/auth_service" // Import the package where AuthService is defined
+	"github.com/XT4RM1NATOR/PostsProject/protos/auth_service"
+	userPb "github.com/XT4RM1NATOR/PostsProject/protos/user_service"
 	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	"log"
 	"net"
 	"os"
 )
 
 var (
-	DB *sqlx.DB
+	DB         *sqlx.DB
+	UserClient userPb.UserServiceClient
 )
 
 func init() {
@@ -22,6 +26,7 @@ func init() {
 }
 
 func main() {
+
 	lis, err := net.Listen("tcp", ":"+os.Getenv("AUTH_SERVICE_PORT"))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -38,4 +43,13 @@ func main() {
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("❌Failed to start the server❌: %v", err)
 	}
+
+	userConn, err := grpc.Dial("localhost:"+os.Getenv("USER_SERVICE_PORT"), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Failed to connect to gRPC user_server: %v", err)
+	}
+	defer userConn.Close()
+
+	UserClient = userPb.NewUserServiceClient(userConn)
+
 }

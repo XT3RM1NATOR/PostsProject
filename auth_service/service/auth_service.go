@@ -18,7 +18,7 @@ func NewAuthService(repo *repository.AuthRepository) *AuthService {
 	return &AuthService{repo}
 }
 
-func (s *AuthService) Login(ctx context.Context, username, password string) (string, string, error) {
+func (s *AuthService) Login(_ context.Context, username, password string) (string, string, error) {
 	user, err := s.Repo.GetUserByUsername(username)
 	if err != nil {
 		return "", "", err
@@ -48,7 +48,7 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (str
 	return accessToken, refreshToken, nil
 }
 
-func (s *AuthService) Logout(ctx context.Context, refreshToken string) error {
+func (s *AuthService) Logout(_ context.Context, refreshToken string) error {
 	sessionID, err := s.Repo.GetSessionByRefreshToken(refreshToken)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (s *AuthService) Logout(ctx context.Context, refreshToken string) error {
 	return nil
 }
 
-func (s *AuthService) Register(ctx context.Context, username, email, password string, role string) error {
+func (s *AuthService) Register(_ context.Context, username, email, password string, role string) error {
 	hashedPassword, err := util.GeneratePasswordHash(password)
 	if err != nil {
 		return err
